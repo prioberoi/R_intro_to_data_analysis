@@ -1,0 +1,48 @@
+---
+title: "Intro to Data Analysis with R"
+author: "Pri Oberoi"
+date: "May 16, 2016"
+output: html_document
+---
+
+# Intro to Data Analysis with R
+
+```{r, echo=TRUE, message=FALSE}
+
+packagesNeeded <- c("ggplot2")
+packagesToInstall <- packagesNeeded[!(packagesNeeded %in% installed.packages()[,"Package"])]
+if(length(packagesToInstall)) install.packages(packagesToInstall)
+
+library(ggplot2)
+
+```
+
+## Visualization
+
+qplot() is good for quick plots and is similar to plot()
+ggplot() is more verbose but it has more functionality
+
+```{r}
+p1 <- qplot(carat, price, data = diamonds, size = I(1), alpha = I(1/10), main = "qplot scatter plot")
+p2 <- ggplot(data = diamonds, aes(x = carat, y = price)) +
+  geom_point(size = 1, alpha = 1/10) +
+  ggtitle("ggplot scatter plot")
+
+multiplot(p1, p2, cols = 2)
+
+# however, with ggplot you can add a loess smoothed fit curve with confidence region
+ggplot(data = diamonds, aes(x = carat, y = price)) +
+  geom_point(size = 1, alpha = 1/10) +
+  ggtitle("ggplot scatter plot") +
+  geom_smooth() 
+
+# or have a different plot for each value of a categorical variable, like diamond cut
+ggplot(data = diamonds, aes(x = carat, y = price)) +
+  geom_point(size = 1, alpha = 1/10) +
+  ggtitle("ggplot scatter plot") +
+  geom_smooth() +
+  facet_wrap( ~ cut, ncol = 3)
+
+```
+
+
