@@ -9,12 +9,12 @@ output: html_document
 
 ```{r, echo=TRUE, message=FALSE}
 
-packagesNeeded <- c("ggplot2")
+packagesNeeded <- c("ggplot2", "reshape2")
 packagesToInstall <- packagesNeeded[!(packagesNeeded %in% installed.packages()[,"Package"])]
 if(length(packagesToInstall)) install.packages(packagesToInstall)
 
 library(ggplot2)
-
+library(reshape2)
 ```
 
 ## Visualization
@@ -22,7 +22,8 @@ library(ggplot2)
 qplot() is good for quick plots and is similar to plot()
 ggplot() is more verbose but it has more functionality
 
-```{r}
+### Scatter plots
+```{r, echo = TRUE}
 p1 <- qplot(carat, price, data = diamonds, size = I(1), alpha = I(1/10), main = "qplot scatter plot")
 p2 <- ggplot(data = diamonds, aes(x = carat, y = price)) +
   geom_point(size = 1, alpha = 1/10) +
@@ -43,6 +44,83 @@ ggplot(data = diamonds, aes(x = carat, y = price)) +
   geom_smooth() +
   facet_wrap( ~ cut, ncol = 3)
 
+# Your turn!
+# Update that last plot so the color of the scatterplot points varies based on the value of “cut”
+# You can do this by adding a “colour = “ argument to the aes() mapping and passing in the variable name (cut)
 ```
 
+### Histograms and Bar Charts
+```{r, echo = TRUE}
+# Bar Chart
+p1 <- ggplot(data = diamonds, aes(x = cut)) +
+  geom_bar() +
+  ggtitle("Bar Chart of Diamond Cuts")
+
+# Histogram
+p2 <- ggplot(data = diamonds, aes(x = price)) +
+  geom_histogram(binwidth = 500) +
+  ggtitle("Histogram of Diamond Prices")
+
+multiplot(p1, p2, cols = 2)
+```
+
+### Boxplots and violin plots
+```{r, echo = TRUE}
+# Boxplot
+p1 <- ggplot(data = diamonds, aes(x = cut, y = log(price))) +
+  geom_boxplot() +
+  ggtitle("Boxplot of Diamond Prices by Cut")
+
+# Violin plot
+p2 <- ggplot(data = diamonds, aes(x = cut, y = log(price))) +
+  geom_violin(scale = "count") +
+  ggtitle("Violin plot of Diamond Prices by Cut")
+
+multiplot(p1, p2, cols = 2)
+```
+
+## National Broadband Dataset from NTIA
+
+We are going to apply the data analysis toolkit we are building to the broadband availability data by provider from NTIA for the DC region. This data is from June, 2014 and was pulled from http://www2.ntia.doc.gov/June_2014_datasets. 
+
+We will try to figure out if certain broadband company providers show a discrepancy between their advertised up/download speeds and the typical up/download speeds.
+
+```{r, echo = TRUE}
+# Load data
+data <- read.csv("https://github.com/prioberoi/R_intro_to_data_analysis/raw/master/DC-NBM-Wireless-CSV-JUN-2014.csv", sep = "|")
+
+# You turn!
+# Create a histogram of max advertised download speeds (maxaddown)
+# You may have to set the binwidth manually
+```
+
+### Let's clean some data up while we explore our data
+```{r, echo = TRUE}
+# maxaddown, maxadup, typicdown, typicup are values, not variable names
+# to use melt, we need to ensure provname is a factor, for melt to recognize it as an id variable
+is.factor(data$provname)
+# and ensure maxaddown, maxadup, typicdown, and typicup are numeric
+str(data[,c("provname", "maxaddown","maxadup","typicdown","typicup")])
+data_clean <- melt(data[,c("provname", "maxaddown","maxadup","typicdown","typicup")])
+
+
+```
+
+
+
+
+```{r}
+
+# Null hypothesis: the typical mean upload and download speeds for broadband providers in Washington, DC are the same as the advertised speeds
+
+# Does each provider have one advertised download and upload speed?
+length(unique(data[,c("provname")]))
+nrow(unique(data[,c("provname", "maxaddown", "maxadup")]))
+
+# Visually, does it look like there is a difference between advertised and typical download speeds?
+data$diffdown <- data$maxaddown - data$typicdown
+data$diffup <- data$maxadup - data$typicup
+ggplot(data = data, aes(x = diffdown)) +
+  geom_histogram(binwidth = 1)
+```
 
