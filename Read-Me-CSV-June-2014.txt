@@ -1,0 +1,362 @@
+National Broadband Map Data
+
+Note: If you have any questions about this data please e-mail sbdd@ntia.doc.gov. 
+
+
+This folders contain broadband availability data submitted to the National Telecommunications and Information  Administration (NTIA) on October 1, 2014 from State Broadband Initiative grantees in every state, Territory and the District of Columbia. This data is current as of June 30, 2014. For more information regarding the Grantees please visit http://www2.ntia.doc.gov/SBDD 
+
+The following files are included for each grantee: 
+	StateAbbreviation-NBM-CBLOCK-CSV-June-2014.zip --- Broadband Availability data for Census Blocks less than 2 square miles
+	StateAbbreviation-NBM-Wireless-CSV-June-2014.zip --- Broadband Availability data for Wireless
+	StateAbbreviation-NBM-Address-Street-CSV-June-2014.zip --- Broadband Availability data for Large Blocks 
+ 	StateAbbreviation-NBM-CAI-CSV-June-2014.zip --- Broadband Availability at Community Anchor Institutions    
+	StateAbbreviation_Methodology_YYYY_MM_DD.pdf --- Methodological description of grantee data collection process
+	StateAbbreviation_DataPackage_YYYY_MM_DD.xls --- This is the List of providers that the grantee reached out to for inclusion
+	
+Note: Because data was originally submitted in a file geodatabase and converted to CSV for download, this data may look slightly different in this format than how it is displayed on BroadbandMap.gov. The HOCONUM and HOCONAME field values, were added during the data integration process and are a holding company roll-up based on the FCC Registration Numbers (FRNs). This allows you to identify unique providers across the country. For a complete description of how the data was collected, please refer the NOFA, Technical Appendix, and NOFA clarification, which can be found here: http://www2.ntia.doc.gov/notices#mapping . 
+
+When citing data, it should read, "US Dept of Commerce, National Telecommunications and Information Administration, State Broadband Initiative (CSV format June 30, 2014)."
+
+Please consult the following information for each CSV file
+
+
+###########Census Blocks with an area less than 2 square miles###########
+NOTES: The following are column headings for the csv file named StateAbbreviation-NBM-CBLOCK-CSV-June-2014.zip. Each row is one record per provider technology, advertised speed, per census block less than 2 square miles. This includes data that was submitted at address level in census blocks less than 2 square miles, and speed data that was submitted in the address, roadsegment, block, or overview feature class by MSA or County. Address data has been aggregated to census block data, and was not provided in this dataset.
+
+OBJECTID - These values are just a record count from the database and should be ignored
+FRN - FCC Registration Number
+PROVNAME - Provider Name
+DBANAME - Doing Business As Name
+HOCONUM - Holding Company Unique Number 
+HOCONAME - Holding Company Name 
+STATEABBR - 2 character State Abbreviation
+FULLFIPSID - 2010 US Census Block 15 Character number
+TRANSTECH - Technology Code (See below for valid values)
+MAXADDOWN - Maximum Advertised Download Speed (see below for valid values) from record level
+MAXADUP - Maximum Advertised Upload Speed (see below for valid values) from record level
+TYPICDOWN - Typical Download Speed (see below for valid values)
+TYPICUP - Typical Upload Speed (see below for valid values)
+DOWNLOADSPEED - Maximum Advertised Download Speed if provided from Overview table
+UPLOADSPEED - Maximum Advertised Upload Speed if provided from Overview table
+PROVIDER_TYPE - Type of Service Provider (see below for valid values)
+END_USER_CAT - Type of Service provided by Provider (see below for valid values)
+
+
+-----DDL-----
+CREATE TABLE bbmap_cblock
+(
+OBJECTID 	character varying(20),
+FRN		character varying(10),
+PROVNAME	character varying(200),
+DBANAME		character varying(200),
+HOCONUM		character varying(6),
+HOCONAME	character varying(200),
+STATEABBR	character varying(2),
+FULLFIPSID	character varying(15),
+TRANSTECH	character varying(2),
+MAXADDOWN	smallint,
+MAXADUP		smallint,
+TYPICDOWN 	smallint,
+TYPICUP		smallint,
+DOWNLOADSPEED   smallint,
+UPLOADSPEED     smallint,
+PROVIDER_TYPE   smallint,
+END_USER_CAT    character varying(4)
+);
+File is PIPE delimited with header
+
+
+###########Wireless###########
+NOTES: The following are column headings for the csv file named StateAbbreviation-NBM-Wireless-CSV-June-2014.zip. Each row displays one 
+record per provider, technology, advertised speed, and coverage per percent overlay by block. This data was submitted to NTIA in 
+shapefiles. In order to export this to CSV, the shapefiles were overlaid on top of census blocks and a Percentage of block per shape 
+was calculated (PCT_BLK_IN_SHAPE).
+
+FRN - FCC Registration Number
+PROVNAME - Provider Name
+DBANAME - Doing Business As Name
+HOCONUM - Holding Company Unique Number 
+HOCONAME - Holding Company Name 
+CENSUSBLOCK_FIPS - 2010 US Census Block 15 Character number
+PCT_BLK_IN_SHAPE - the percent area of the wireless polygon overlay of the Census block
+TRANSTECH - Technology Code (See below for valid values)
+MAXADDOWN - Maximum Advertised Download Speed (see below for valid values) from record level
+MAXADUP - Maximum Advertised Upload Speed (see below for valid values) from record level
+TYPICDOWN - Typical Download Speed (see below for valid values)
+TYPICUP - Typical Upload Speed (see below for valid values)
+OBJECTID - These values are just a record count from the database and should be ignored
+SPECTRUM - Spectrum used to transit wireless broadband
+END_USER_CAT - Type of Service provided by Provider (see below for valid values)
+
+
+-----DDL-----
+CREATE TABLE bbmap_wireless 
+(
+FRN			character varying(10),
+PROVNAME		character varying(200),
+DBANAME			character varying(200),
+HOCONUM			character varying(6),
+HOCONAME		character varying(200),
+CENSUSBLOCK_FIPS	character varying(15),
+PCT_BLK_IN_SHAPE	numeric,
+TRANSTECH		character varying(2),
+MAXADDOWN		smallint,
+MAXADUP			smallint,
+TYPICDOWN 		smallint,
+TYPICUP			smallint,
+OBJECTID 		character varying(20),
+SPECTRUM	    	character varying(1),
+END_USER_CAT            smallint
+); 
+File is PIPE delimited with header
+
+
+###########Large Blocks - Census blocks with an area over 2 square miles (Address and Street)###########
+NOTES: The following are column headings for the csv file named StateAbbreviation-NBM-Address-Street-CSV-June-2014.txt. Each row displays one 
+record per provider, technology, advertised speed, per census block greater than 2 square miles. This includes data that was submitted at 
+address level and road segment level, and any associated speed data, including that which was submitted in the address, roadsegment, block, 
+or overview feature class by MSA or County. 
+
+OBJECTID - These values are just a record count from the database and should be ignored
+RANDOM_PT_OBJECTID - This is the ID for the random point
+DATASOURCE - Source of availability data (Originally submitted to NTIA as Road Segment or Address Points)
+FRN - FCC Registration Number
+PROVNAME - Provider Name
+DBANAME - Doing Business As Name
+HOCONUM - Holding Company Unique Number 
+HOCONAME - Holding Company Name 
+STATEABBR - 2 character State Abbreviation
+FULLFIPSID - 2010 US Census Block 15 Character number
+COUNTY_FIPS - The 5 character State + County 2010 US Census FIPS ID
+TRANSTECH - Technology Code (See below for valid values)
+MAXADDOWN - Maximum Advertised Download Speed (see below for valid values) from record level
+MAXADUP - Maximum Advertised Upload Speed (see below for valid values) from record level
+TYPICDOWN - Typical Download Speed (see below for valid values)
+TYPICUP - Typical Upload Speed (see below for valid values)
+DOWNLOADSPEED - Maximum Advertised Download Speed if provided from Overview table
+UPLOADSPEED - Maximum Advertised Upload Speed if provided from Overview table
+PROVIDER_TYPE - Type of Service Provider (see below for valid values)
+END_USER_CAT - Type of Service provided by Provider (see below for valid values)
+
+
+-----DDL-----
+CREATE TABLE bbmap_address_street 
+(
+OBJECTID		integer,
+RANDOM_PT_OBJECTID 	character varying(25),
+DATASOURCE		character varying(20),
+FRN			character varying(10),
+PROVNAME		character varying(200),
+DBANAME			character varying(200),
+HOCONUM			character varying(6),
+HOCONAME		character varying(200),
+STATEABBR		character varying(2),
+FULLFIPSID		character varying(15),
+COUNTY_FIPS		character varying(5),
+TRANSTECH		character varying(2),
+MAXADDOWN		smallint,
+MAXADUP			smallint,
+TYPICDOWN 		smallint,
+TYPICUP			smallint,
+DOWNLOADSPEED   	smallint,
+UPLOADSPEED     	smallint,
+PROVIDER_TYPE  	 	smallint,
+END_USER_CAT    	character varying(4)
+); 
+File is PIPE delimited with header
+
+
+###########Community Anchor Institutions###########
+
+ID - These values are just a record count from the database and should be ignored
+ANCHORNAME - The name of the Community Anchor Institution
+ADDRESS - the full address (including number, street, city, state, and zip code) of the Community Anchor Institution
+BLDGNBR - Building number
+PREDIR - Direction of address (for example, N, NE, South)
+STREETNAME - Street Name
+STREETTYPE - Street Type (for example, RD, ST, LN, BLVD)
+SUFFDIR - Suffix direction
+CITY - City
+STATE_CODE - 2 character State Abbreviation
+ZIP5 - 5 character zip code
+ZIP4 - plus 4 character zip code
+LATITUDE - Latitude of the Community Anchor Institution
+LONGITUDE - Longitude of the Community Anchor Institution
+CAICAT - Community Anchor Institution category/type (see below for valid values)
+BBSERVICE - Community Anchor Institution subscribes to broadband service (see below for valid values)
+PUBLICWIFI - Community Anchor Institution offers public wifi
+URL - Website URL of Community Anchor Institution
+TRANSTECH - Technology Code (See below for valid values)
+FULLFIPSID - 2010 US Census Block 15 Character number
+CAIID - Special identifier for Community Anchor Institution
+MAXADDOWN - Maximum Advertised Download Speed (see below for valid values) that the Community Anchor Institution subscribes to
+MAXADUP - Maximum Advertised Upload Speed (see below for valid values) that the Community Anchor Institution subscribes to
+OBJECTID - These values are an internal ID from the database and should be ignored
+
+
+-----DDL-----
+CREATE TABLE bbmap_cai 
+(
+ID integer,
+ANCHORNAME character varying(200),
+ADDRESS character varying(200),
+BLDGNBR character varying(10),
+PREDIR character varying(25),
+STREETNAME character varying(50),
+STREETTYPE character varying(25),
+SUFFDIR character varying(25),
+CITY character varying(50),
+STATE_CODE character varying(2),
+ZIP5 character varying(5),
+ZIP4 character varying(4),
+LATITUDE numeric,
+LONGITUDE numeric,
+CAICAT character varying(2),
+BBSERVICE character varying(2),
+PUBLICWIFI character varying(2),
+URL character varying(100),
+TRANSTECH numeric,
+FULLFIPSID character varying(16),
+CAIID character varying(50),
+MAXADDOWN character varying(2),
+MAXADUP character varying(2),
+OBJECTID character varying(20)
+);
+File is PIPE delimited with header
+
+###########Data_Dictionary###########
+###########TransTech###########
+Code	Description
+10	Asymmetric xDSL
+20	Symmetric xDSL
+30	Other Copper Wire
+40	Cable Modem - DOCSIS 3.0 Down
+41	Cable Model - Other
+50	Optical Carrier/Fiber to the End User
+60	Satellite
+70	Terrestrial Fixed - Unlicensed
+71	Terrestrial Fixed - Licensed
+80	Terrestrial Mobile Wireless
+90	Electric Power Line
+0	All Other
+
+
+###########MaxAdDown###########
+Code	Description
+2	Greater than 200 kbps and less than 768 kbps
+3	Greater than 768 kbps and less than 1.5 mbps
+4	Greater than 1.5 mbps and less than 3 mbps
+5	Greater than 3 mbps and less than 6 mbps
+6	Greater than 6 mbps and less than 10 mbps
+7	Greater than 10 mbps and less than 25 mbps
+8	Greater than 25 mbps and less than 50 mbps
+9	Greater than 50 mbps and less than 100 mbps
+10	Greater than 100 mbps and less than 1 gbps
+11	Greater than 1 gbps
+
+
+###########MaxAdUp###########
+Code	Description
+2	Greater than 200 kbps and less than 768 kbps
+3	Greater than 768 kbps and less than 1.5 mbps
+4	Greater than 1.5 mbps and less than 3 mbps
+5	Greater than 3 mbps and less than 6 mbps
+6	Greater than 6 mbps and less than 10 mbps
+7	Greater than 10 mbps and less than 25 mbps
+8	Greater than 25 mbps and less than 50 mbps
+9	Greater than 50 mbps and less than 100 mbps
+10	Greater than 100 mbps and less than 1 gbps
+11	Greater than 1 gbps
+
+
+###########TYPICDOWN###########
+Code	Description
+2	Greater than 200 kbps and less than 768 kbps
+3	Greater than 768 kbps and less than 1.5 mbps
+4	Greater than 1.5 mbps and less than 3 mbps
+5	Greater than 3 mbps and less than 6 mbps
+6	Greater than 6 mbps and less than 10 mbps
+7	Greater than 10 mbps and less than 25 mbps
+8	Greater than 25 mbps and less than 50 mbps
+9	Greater than 50 mbps and less than 100 mbps
+10	Greater than 100 mbps and less than 1 gbps
+11	Greater than 1 gbps
+
+
+###########TYPICUP###########
+Code	Description
+2	Greater than 200 kbps and less than 768 kbps
+3	Greater than 768 kbps and less than 1.5 mbps
+4	Greater than 1.5 mbps and less than 3 mbps
+5	Greater than 3 mbps and less than 6 mbps
+6	Greater than 6 mbps and less than 10 mbps
+7	Greater than 10 mbps and less than 25 mbps
+8	Greater than 25 mbps and less than 50 mbps
+9	Greater than 50 mbps and less than 100 mbps
+10	Greater than 100 mbps and less than 1 gbps
+11	Greater than 1 gbps
+
+
+###########Provider Type###########
+
+Code	Description
+1	Broadband provider as described in the NOFA
+2	Reseller
+3	Other
+
+
+###########EndUserCategory###########
+
+Code	Description
+1	Residential
+2	Government
+3	Small Business
+4	Medium or Large Enterprise
+5	Other
+
+
+###########Spectrum###########
+
+Code	Description
+1 	is Cellular spectrum (824-849 MHz; 869-894) used to provide service
+2 	is 700 MHz spectrum (698-758 MHz; 775-788 MHz; 775-788 MHz) used to provide service
+3 	is Broadband Personal Communications Services spectrum (1850-1915 MHz; 1930-1995) used to provide service
+4 	is Advanced Wireless Services spectrum (1710-1755 MHz; 2100-2155) used to provide service
+5 	is Broadband Radio Service/Educational Broadband Service spectrum (2496-2690 MHz) used to provide service
+6 	is Unlicensed (including broadcast television "white spaces" ) spectrum Used to provide service	
+7 	Specialized Mobile Radio Service (SMR) (817-824 MHz; 862-869 MHz; 896-901 MHz; 935-940 MHz)
+8 	Wireless Communications Service (WCS) spectrum (2305-2320 MHz; 2345-2360 MHz), 3650-3700 MHz
+9 	Satellite (L-band, Big LEO, Little LEO, 2 GHz)
+
+
+###########CAICAT###########
+
+Code	Description
+1 	School - K through 12
+2 	Library
+3 	Medical/healthcare
+4 	Public safety
+5 	University, college, other post-secondary
+6 	Other community support - government
+7 	Other community support - nongovernmental
+
+
+###########Yes/No fields###########
+
+Code	Description
+Y 	Yes
+N 	No
+U 	Unknown
+
+
+Readme Additions
+
+The files for Random Point (e.g. suffix -NBM-Address-Street-CSV-) are the result of the post processing result described here - http://www.broadbandmap.gov/about/technical-overview/post-processing-data.  This process is primarily established in order to provide statistics on housing units and population in large census blocks (e.g. greater than 2 square miles).  The download files need to meet the demand of this primary goal (calculating availability statistics) while  a) keeping data deemed by the NTIA as confidential in its Notice of Funding Availability and b) providing the most valid, transparent, and open data as possible.  
+
+As a result of the post-processing, there is an effect in data that appears as a duplicate row.  We choose to not filter that data, but provide the full records that we process to the end user.  In performing the above mentioned geospatial analysis, a single address or road segment shown as having availability from the National Broadband Map, buffered by 500 feet, might overlap many of our random point addresses (used as surrogates for calculating housing units and population).  Additionally, close proximity address and road segment availability features might overlap the same features multiple times.  
+
+Rest assured, we perform unique calculations on the 'random_pt_objectid' to calculate housing units and population w/ availability, but we also leave in every overlapping record in this download file for full transparency.  These records might appear to be duplicate rows by some, but indeed they are not, because many availability features can overlap many of the same random point address features used to calculate availability.
+
+When using this files to calculate availability, it is required to perform unique counts on the 'random_point_objectid' field with whatever appropriate availability metric in which you are interested.
+
+<end>
