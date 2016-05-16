@@ -9,12 +9,13 @@ output: html_document
 
 ```{r, echo=TRUE, message=FALSE}
 
-packagesNeeded <- c("ggplot2", "reshape2")
+packagesNeeded <- c("ggplot2", "reshape2", "Rmisc")
 packagesToInstall <- packagesNeeded[!(packagesNeeded %in% installed.packages()[,"Package"])]
 if(length(packagesToInstall)) install.packages(packagesToInstall)
 
 library(ggplot2)
 library(reshape2)
+library(Rmisc)
 ```
 
 ## Visualization
@@ -94,33 +95,76 @@ data <- read.csv("https://github.com/prioberoi/R_intro_to_data_analysis/raw/mast
 # You may have to set the binwidth manually
 ```
 
-### Let's clean some data up while we explore our data
+### Clean
+
+Column headers are values, not variable names
 ```{r, echo = TRUE}
 # maxaddown, maxadup, typicdown, typicup are values, not variable names
 # to use melt, we need to ensure provname is a factor, for melt to recognize it as an id variable
 is.factor(data$provname)
 # and ensure maxaddown, maxadup, typicdown, and typicup are numeric
 str(data[,c("provname", "maxaddown","maxadup","typicdown","typicup")])
-data_clean <- melt(data[,c("provname", "maxaddown","maxadup","typicdown","typicup")])
+data_clean <- melt(data[,c("provname","dbaname", "hoconame", "endusercat...", "maxaddown","maxadup","typicdown","typicup")])
 
-
+ggplot(data_clean, aes(x = variable, y = value)) +
+  geom_boxplot()
 ```
 
+Multiple variables are stored in one column
+```{r, echo = TRUE}
+# Let's split the values stored in the 'variable' column in data_clean into two variables
+data_clean$speedDirection <- "download"
+data_clean$speedDirection[data_clean$variable %in% c("maxadup","typicup")] <- "upload"
+data_clean$speedSource <- "advertised"
+data_clean$speedSource[data_clean$variable %in% c("typicup","typicdown")] <- "typical"
+data_clean$variable <- NULL
 
+ggplot(data_clean, aes(x = speedDirection, y = value, colour = speedSource)) +
+  geom_boxplot(position = "dodge")
+```
 
+### Summarize data within groups
+
+What's the mean speed for each advertised speeds and typical speeds?
+```{r, echo = TRUE}
+aggregate(data_clean[data_clean$speedDirection == 'download','value'], list(data_clean[data_clean$speedDirection == 'download', 'speedSource']), mean)
+```
+
+### Correlation
+
+Is there a correlation between the advertised and typical download speeds?
+```{r}
+# scatterplot
+ggplot(data, aes(x = maxaddown, y = typicdown)) + geom_point()
+# correlation test
+cor.test(data$maxaddown, y = data$typicdown)
+```
+
+### Comparing Samples
 
 ```{r}
-
 # Null hypothesis: the typical mean upload and download speeds for broadband providers in Washington, DC are the same as the advertised speeds
+# t-test
+t.test(data_clean[data_clean$speedDirection == 'download','value'] ~ data_clean[data_clean$speedDirection == 'download','speedSource'], data_clean)
+```
 
-# Does each provider have one advertised download and upload speed?
-length(unique(data[,c("provname")]))
-nrow(unique(data[,c("provname", "maxaddown", "maxadup")]))
+### Moving away from statistical tests to statistical learning
 
-# Visually, does it look like there is a difference between advertised and typical download speeds?
-data$diffdown <- data$maxaddown - data$typicdown
-data$diffup <- data$maxadup - data$typicup
-ggplot(data = data, aes(x = diffdown)) +
-  geom_histogram(binwidth = 1)
+Can we predict what the typical speed will be if given the advertised speed?
+```{r}
+fit <- lm(typicdown ~ maxaddown, data)
+summary(fit)
+
+ggplot(data, aes(x = typicdown, y = maxaddown)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  ggtitle("Scatter plot of advertised and typical download speeds with linear regression line")
+
+residualdata <- data.frame(maxaddown = data$maxaddown, residual = resid(fit))
+ggplot(residualdata, aes(x = maxaddown, y = residual)) +
+  geom_point(aes(colour = residual)) +
+  ggtitle("Plot of Residuals") +
+  geom_abline(intercept = 0, slope = 0)
+
 ```
 
