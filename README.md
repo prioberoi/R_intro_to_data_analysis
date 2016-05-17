@@ -25,5 +25,5 @@ Run the first chunk of code in the data_analysis_with_R.Rmd file
 	Summarizing data within groups
 	Correlation
 	Comparing two samples
-	Statistical Leaning
-		linear regression
+	Dimensionality reduction
+	Statistical learning
