@@ -108,6 +108,8 @@ data_clean <- melt(data[,c("provname","dbaname", "hoconame", "endusercat...", "m
 
 ggplot(data_clean, aes(x = variable, y = value)) +
   geom_boxplot()
+
+pairs(data[,c("maxaddown","maxadup","typicdown","typicup","spectrum")])
 ```
 
 Multiple variables are stored in one column
@@ -148,23 +150,46 @@ cor.test(data$maxaddown, y = data$typicdown)
 t.test(data_clean[data_clean$speedDirection == 'download','value'] ~ data_clean[data_clean$speedDirection == 'download','speedSource'], data_clean)
 ```
 
-### Moving away from statistical tests to statistical learning
+### Analysis for model selection and feature selection
 
-Can we predict what the typical speed will be if given the advertised speed?
 ```{r}
-fit <- lm(typicdown ~ maxaddown, data)
-summary(fit)
+# Scatterplot matrix
+pairs(data[,c("maxaddown","maxadup","typicdown","typicup","spectrum")])
 
-ggplot(data, aes(x = typicdown, y = maxaddown)) +
+# choosing a model to predict typicdown
+p1 <- ggplot(data, aes(x = typicdown, y = maxaddown)) +
   geom_point() +
-  geom_smooth(method = "lm") +
-  ggtitle("Scatter plot of advertised and typical download speeds with linear regression line")
+  ggtitle("Scatterplot of typicdown and maxaddown")
+p2 <- ggplot(data, aes(x = typicdown, y = spectrum)) +
+  geom_point() +
+  ggtitle("Scatterplot of typicdown and spectrum")
 
-residualdata <- data.frame(maxaddown = data$maxaddown, residual = resid(fit))
-ggplot(residualdata, aes(x = maxaddown, y = residual)) +
-  geom_point(aes(colour = residual)) +
-  ggtitle("Plot of Residuals") +
-  geom_abline(intercept = 0, slope = 0)
+multiplot(p1, p2, cols = 2)
 
+```
+
+```{r}
+# violin plot to see if variables are all on the same scale and if there is a lot of missing data
+dataset <- data <- read.csv("https://github.com/prioberoi/R_intro_to_data_analysis/raw/master/injuries.csv", sep = ",")
+# Your turn!
+# use str to find all the continuous variables
+str(dataset)
+continuousVariable = c("psu","weight","age","length_of_stay")
+# use melt to create a dataframe of the continuous variables, with the variable name as a categorical variable
+dataset2 <- melt(dataset[,continuousVariable])
+
+ggplot(dataset2, aes(x = variable, y = value)) +
+  geom_violin(scale = "count") +
+  ggtitle("Violin plot of continuous variables in Injuries dataset")
+
+# normalize data
+dataset_normalized <- dataset
+for(variable in continuousVariable){
+  dataset_normalized[,variable] <- scale(dataset_normalized[,variable], center = TRUE, scale = FALSE)
+}
+dataset2 <- melt(dataset_normalized[,continuousVariable])
+ggplot(dataset2, aes(x = variable, y = value)) +
+  geom_violin(scale = "count") +
+  ggtitle("Violin plot of noralized continuous variables in Injuries dataset")
 ```
 
