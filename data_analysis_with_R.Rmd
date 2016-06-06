@@ -9,9 +9,9 @@ output: html_document
 
 ```{r, echo=TRUE, message=FALSE}
 
-packagesNeeded <- c("ggplot2", "reshape2", "Rmisc")
-packagesToInstall <- packagesNeeded[!(packagesNeeded %in% installed.packages()[,"Package"])]
-if(length(packagesToInstall)) install.packages(packagesToInstall)
+# install.packages("ggplot2")
+# install.packages("reshape2")
+# install.packages("Rmisc")
 
 library(ggplot2)
 library(reshape2)
@@ -48,6 +48,11 @@ ggplot(data = diamonds, aes(x = carat, y = price)) +
 # Your turn!
 # Update that last plot so the color of the scatterplot points varies based on the value of “cut”
 # You can do this by adding a “colour = “ argument to the aes() mapping and passing in the variable name (cut)
+ggplot(data = diamonds, aes(x = carat, y = price, colour = cut)) +
+  geom_point(size = 1, alpha = 1/10) +
+  ggtitle("ggplot scatter plot") +
+  geom_smooth() +
+  facet_wrap( ~ cut, ncol = 3)
 ```
 
 ### Histograms and Bar Charts
@@ -59,7 +64,7 @@ p1 <- ggplot(data = diamonds, aes(x = cut)) +
 
 # Histogram
 p2 <- ggplot(data = diamonds, aes(x = price)) +
-  geom_histogram(binwidth = 500) +
+  geom_histogram(binwidth = 1000) +
   ggtitle("Histogram of Diamond Prices")
 
 multiplot(p1, p2, cols = 2)
@@ -93,6 +98,11 @@ data <- read.csv("https://github.com/prioberoi/R_intro_to_data_analysis/raw/mast
 # You turn!
 # Create a histogram of max advertised download speeds (maxaddown)
 # You may have to set the binwidth manually
+
+ggplot(data, aes(x = maxaddown)) +
+  geom_histogram(binwidth = 1) +
+  ggtitle("Histogram of Max Advertised Download Speeds")
+
 ```
 
 ### Clean
@@ -109,7 +119,6 @@ data_clean <- melt(data[,c("provname","dbaname", "hoconame", "endusercat...", "m
 ggplot(data_clean, aes(x = variable, y = value)) +
   geom_boxplot()
 
-pairs(data[,c("maxaddown","maxadup","typicdown","typicup","spectrum")])
 ```
 
 Multiple variables are stored in one column
@@ -130,6 +139,8 @@ ggplot(data_clean, aes(x = speedDirection, y = value, colour = speedSource)) +
 What's the mean speed for each advertised speeds and typical speeds?
 ```{r, echo = TRUE}
 aggregate(data_clean[data_clean$speedDirection == 'download','value'], list(data_clean[data_clean$speedDirection == 'download', 'speedSource']), mean)
+
+aggregate(data_clean[data_clean$speedDirection == 'upload','value'], list(data_clean[data_clean$speedDirection == 'upload', 'speedSource']), mean)
 ```
 
 ### Correlation
@@ -139,6 +150,10 @@ Is there a correlation between the advertised and typical download speeds?
 # scatterplot
 ggplot(data, aes(x = maxaddown, y = typicdown)) + 
   geom_point()
+
+ggplot(data, aes(x = maxaddown, y = typicdown)) + 
+  geom_point() +
+  geom_jitter()
 
 # correlation test
 cor.test(data$maxaddown, y = data$typicdown)
@@ -150,6 +165,8 @@ cor.test(data$maxaddown, y = data$typicdown)
 # Null hypothesis: the typical mean upload and download speeds for broadband providers in Washington, DC are the same as the advertised speeds
 # t-test
 t.test(data_clean[data_clean$speedDirection == 'download','value'] ~ data_clean[data_clean$speedDirection == 'download','speedSource'], data_clean)
+
+t.test(data_clean[data_clean$speedDirection == 'upload','value'] ~ data_clean[data_clean$speedDirection == 'upload','speedSource'], data_clean)
 ```
 
 ### Analysis for model selection and feature selection
@@ -192,6 +209,6 @@ for(variable in continuousVariable){
 dataset2 <- melt(dataset_normalized[,continuousVariable])
 ggplot(dataset2, aes(x = variable, y = value)) +
   geom_violin(scale = "count") +
-  ggtitle("Violin plot of noralized continuous variables in Injuries dataset")
+  ggtitle("Violin plot of normalized continuous variables in Injuries dataset")
 ```
 
